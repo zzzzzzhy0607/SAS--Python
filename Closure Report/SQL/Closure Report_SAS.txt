@@ -1,0 +1,253 @@
+	****************Closure Report Code**********************************;
+****************Created June 26, 2009********************************;
+****************By Paul Lambson************			**************************;
+****************Revenue Management Frontier Airlines*****************;
+
+libname data 'C:\WPSData';
+
+**Fully automate variables to be used in PROC SQL steps**;
+%let end_date=%str(%')%sysfunc(putn(%eval(%sysfunc(today())+300-%eval(%sysfunc(day(%eval(%sysfunc(today()))+300)))),mmddyy10.))%str(%'); 
+%let today=%str(%')%sysfunc(putn(%eval(%sysfunc(today())),mmddyy10.))%str(%');
+%let process_date=%sysfunc(substr(%sysfunc(putn(%eval(%sysfunc(today())-1),yymmdd6.)),2,5)); 
+%let process_date_1=%sysfunc(substr(%sysfunc(putn(%eval(%sysfunc(today())-2),yymmdd6.)),2,5)); 
+%let process_date_3=%sysfunc(substr(%sysfunc(putn(%eval(%sysfunc(today())-4),yymmdd6.)),2,5)); 
+%let process_date_7=%sysfunc(substr(%sysfunc(	putn(%eval(%sysfunc(today())-8),yymmdd6.)),2,5)); 
+%let process_date_14=%sysfunc(substr(%sysfunc(putn(%eval(%sysfunc(today())-15),yymmdd6.)),2,5)); 
+%let process_date_364=%sysfunc(substr(%sysfunc(putn(%eval(%sysfunc(today())-366),yymmdd6.)),2,5)); 
+%let process_date_371=%sysfunc(substr(%sysfunc(putn(%eval(%sysfunc(today())-370),yymmdd6.)),2,5)); 
+
+
+proc sql;
+connect to odbc(dsn=MDM2);
+create table current as 
+select * from connection to odbc
+(select
+a.orgn org,
+a.dstn dest,
+a.dptdt departuredate,
+a.curbooked*a.mileage as 'RPMS',
+a.phycap*a.mileage  as 'ASMS',
+b.Yavl,
+b.Bavl,
+b.Havl,
+b.Vavl,
+b.Lavl,
+b.Uavl,
+b.Eavl,
+b.Davl,
+b.Mavl,
+b.Qavl,
+b.Tavl,
+b.Gavl,
+b.Wavl,
+b.Ravl,
+b.Zavl,
+b.Kavl
+from dbo.RM_PFW_CMP_AllFields_ProcDt a
+join dbo.RM_PFW_CLS_AllFields_ProcDt b on (a.segmentid=b.segmentid and a.processdate=b.processdate)
+where 
+a.processdate = cast(convert(varchar(8), getdate(),112) as datetime)
+and a.dptdt >= &today
+and a.dptdt <= &end_date
+and a.fltnum <4000
+and a.fltnum >59
+);
+quit;
+
+proc sql;
+connect to odbc(dsn=MDM2);
+create table currentLY as 
+select * from connection to odbc
+(select
+a.orgn org,
+a.dstn dest,
+a.dptdt+364 departuredate,
+a.curbooked*a.mileage as 'RPMS',
+a.phycap*a.mileage  as 'ASMS',
+b.Yavl,
+b.Bavl,
+b.Havl,
+b.Vavl,
+b.Lavl,
+b.Uavl,
+b.Eavl,
+b.Davl,
+b.Mavl,
+b.Qavl,
+b.Tavl,
+b.Gavl,
+b.Wavl,
+b.Ravl,
+b.Zavl,
+b.Kavl
+from dbo.RM_PFW_CMP_AllFields_ProcDt a
+join dbo.RM_PFW_CLS_AllFields_ProcDt b on (a.segmentid=b.segmentid and a.processdate=b.processdate)
+where 
+a.processdate = cast(convert(varchar(8), dateadd(dd,-364,getdate()),112) as datetime)
+and a.dptdt+364 >= &today
+and a.dptdt+364 <= &end_date
+and a.fltnum <4000
+and a.fltnum >59
+and b.yavl is not null
+);
+quit;
+
+proc sql;
+connect to odbc(dsn=MDM2);
+create table current_1 as 
+select * from connection to odbc
+(select
+a.orgn org,
+a.dstn dest,
+a.dptdt departuredate,
+a.curbooked*a.mileage as 'RPMS',
+a.phycap*a.mileage  as 'ASMS',
+b.Yavl,
+b.Bavl,
+b.Havl,
+b.Vavl,
+b.Lavl,
+b.Uavl,
+b.Eavl,
+b.Davl,
+b.Mavl,
+b.Qavl,
+b.Tavl,
+b.Gavl,
+b.Wavl,
+b.Ravl,
+b.Zavl,
+b.Kavl
+from dbo.RM_PFW_CMP_AllFields_ProcDt a
+join dbo.RM_PFW_CLS_AllFields_ProcDt b on (a.segmentid=b.segmentid and a.processdate=b.processdate)
+where 
+a.processdate = cast(convert(varchar(8), dateadd(dd,-1,getdate()),112) as datetime)
+and a.dptdt >= &today
+and a.dptdt <= &end_date
+and a.fltnum <4000
+and a.fltnum >59
+);
+quit;
+
+data a(keep= org dest departuredate rpms asms Ycls Bcls Hcls Vcls Lcls Ucls Ecls Dcls Mcls Qcls Tcls Gcls Wcls Rcls Zcls Kcls);
+set current;
+if Yavl le 0 then Ycls = 1; else Ycls = 0;
+if Bavl le 0 then Bcls = 1; else Bcls = 0;
+if Havl le 0 then Hcls = 1; else Hcls = 0;
+if Vavl le 0 then Vcls = 1; else Vcls = 0;
+if Lavl le 0 then Lcls = 1; else Lcls = 0;
+if Uavl le 0 then Ucls = 1; else Ucls = 0;
+if Eavl le 0 then Ecls = 1; else Ecls = 0;
+if Davl le 0 then Dcls = 1; else Dcls = 0;
+if Mavl le 0 then Mcls = 1; else Mcls = 0;
+if Qavl le 0 then Qcls = 1; else Qcls = 0;
+if Tavl le 0 then Tcls = 1; else Tcls = 0;
+if Gavl le 0 then Gcls = 1; else Gcls = 0;
+if Wavl le 0 then Wcls = 1; else Wcls = 0;
+if Ravl le 0 then Rcls = 1; else Rcls = 0;
+if Zavl le 0 then Zcls = 1; else Zcls = 0;
+if Kavl le 0 then Kcls = 1; else Kcls = 0;
+
+proc sort;
+by org dest departuredate;
+proc summary data=a;
+by org dest departuredate;
+var  RPMS ASMS Ycls Bcls Hcls Vcls Lcls Ucls Ecls Dcls Mcls Qcls Tcls Gcls Wcls Rcls Zcls Kcls;
+output out = aa(rename=(_freq_=Count)drop=_type_) sum=;
+proc sort;
+by org dest departuredate;
+run;
+
+data b(keep= org dest departuredate LY_rpms LY_asms LY_Ycls LY_Bcls LY_Hcls LY_Vcls LY_Lcls LY_Ucls LY_Ecls LY_Dcls LY_Mcls LY_Qcls LY_Tcls LY_Gcls LY_Wcls LY_Rcls LY_Zcls LY_Kcls);
+set currentLY;
+LY_rpms = RPMS;
+LY_ASMS = ASMS;
+if Yavl le 0 then LY_Ycls = 1; else LY_Ycls = 0;
+if Bavl le 0 then LY_Bcls = 1; else LY_Bcls = 0;
+if Havl le 0 then LY_Hcls = 1; else LY_Hcls = 0;
+if Vavl le 0 then LY_Vcls = 1; else LY_Vcls = 0;
+if Lavl le 0 then LY_Lcls = 1; else LY_Lcls = 0;
+if Uavl le 0 then LY_Ucls = 1; else LY_Ucls = 0;
+if Eavl le 0 then LY_Ecls = 1; else LY_Ecls = 0;
+if Davl le 0 then LY_Dcls = 1; else LY_Dcls = 0;
+if Mavl le 0 then LY_Mcls = 1; else LY_Mcls = 0;
+if Qavl le 0 then LY_Qcls = 1; else LY_Qcls = 0;
+if Tavl le 0 then LY_Tcls = 1; else LY_Tcls = 0;
+if Gavl le 0 then LY_Gcls = 1; else LY_Gcls = 0;
+if Wavl le 0 then LY_Wcls = 1; else LY_Wcls = 0;
+if Ravl le 0 then LY_Rcls = 1; else LY_Rcls = 0;
+if Zavl le 0 then LY_Zcls = 1; else LY_Zcls = 0;
+if Kavl le 0 then LY_Kcls = 1; else LY_Kcls = 0;
+proc sort;
+by org dest departuredate;
+proc summary data=b;
+by org dest departuredate;
+var  LY_RPMS LY_ASMS LY_Ycls LY_Bcls LY_Hcls LY_Vcls LY_Lcls LY_Ucls LY_Ecls LY_Dcls LY_Mcls LY_Qcls LY_Tcls LY_Gcls LY_Wcls LY_Rcls LY_Zcls LY_Kcls;
+output out = bb(rename=(_freq_=LY_Count)drop=_type_) sum=;
+proc sort;
+by org dest departuredate;
+run;
+
+data c(keep= org dest departuredate Pre_RPMS Pre_ASMS Pre_Ycls Pre_Bcls Pre_Hcls Pre_Vcls Pre_Lcls Pre_Ucls Pre_Ecls Pre_Dcls Pre_Mcls Pre_Qcls Pre_Tcls Pre_Gcls Pre_Wcls Pre_Rcls Pre_Zcls Pre_Kcls);
+set current_1;
+Pre_rpms = RPMS;
+Pre_ASMS = ASMS;
+if Yavl le 0 then Pre_Ycls = 1; else Pre_Ycls = 0;
+if Bavl le 0 then Pre_Bcls = 1; else Pre_Bcls = 0;
+if Havl le 0 then Pre_Hcls = 1; else Pre_Hcls = 0;
+if Vavl le 0 then Pre_Vcls = 1; else Pre_Vcls = 0;
+if Lavl le 0 then Pre_Lcls = 1; else Pre_Lcls = 0;
+if Uavl le 0 then Pre_Ucls = 1; else Pre_Ucls = 0;
+if Eavl le 0 then Pre_Ecls = 1; else Pre_Ecls = 0;
+if Davl le 0 then Pre_Dcls = 1; else Pre_Dcls = 0;
+if Mavl le 0 then Pre_Mcls = 1; else Pre_Mcls = 0;
+if Qavl le 0 then Pre_Qcls = 1; else Pre_Qcls = 0;
+if Tavl le 0 then Pre_Tcls = 1; else Pre_Tcls = 0;
+if Gavl le 0 then Pre_Gcls = 1; else Pre_Gcls = 0;
+if Wavl le 0 then Pre_Wcls = 1; else Pre_Wcls = 0;
+if Ravl le 0 then Pre_Rcls = 1; else Pre_Rcls = 0;
+if Zavl le 0 then Pre_Zcls = 1; else Pre_Zcls = 0;
+if Kavl le 0 then Pre_Kcls = 1; else Pre_Kcls = 0;
+proc sort;
+by org dest departuredate;
+proc summary data=c;
+by org dest departuredate;
+var  Pre_RPMS Pre_ASMS Pre_Ycls Pre_Bcls Pre_Hcls Pre_Vcls Pre_Lcls Pre_Ucls Pre_Ecls Pre_Dcls Pre_Mcls Pre_Qcls Pre_Tcls Pre_Gcls Pre_Wcls Pre_Rcls Pre_Zcls Pre_Kcls;
+output out = cc(rename=(_freq_=Pre_Count)drop=_type_) sum=;
+proc sort;
+by org dest departuredate;
+run;
+
+data data.closureReport;
+
+merge aa bb cc;
+by org dest departuredate;
+
+Month = month(datepart(departuredate));
+DOW = weekday(datepart(departuredate-1));
+format Week ddmmyy8.;
+Week = datepart(departuredate)-dow;
+if org>dest then AlphaMkt=trim(dest)||trim(org); else AlphaMkt=trim(org)||trim(dest);
+DirMkt = trim(org)||trim(dest);
+/*if RPMS <1 then delete;*/
+/*if LY_rpms = " " then bb = 0.0;*/
+
+run;
+
+data data.closureReport;
+   set data.closureReport;
+   array change _numeric_;
+            do over change;
+            if change=. then change=0;
+            end;
+   run ;
+
+libname data1 'C:\WPSData';
+
+Proc Export 
+data = data1.closureReport
+outfile = "C:\WPSData\Closure.dbf"
+DBMS = dbf Replace;
+Run;
+
+**%sendmail;

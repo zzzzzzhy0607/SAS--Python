@@ -1,0 +1,30 @@
+select
+a.orgn org,
+a.dstn dest,
+a.dptdt departuredate,
+a.curbooked*a.mileage as 'RPMS',
+a.phycap*a.mileage  as 'ASMS',
+b.Yavl,
+b.Bavl,
+b.Havl,
+b.Vavl,
+b.Lavl,
+b.Uavl,
+b.Eavl,
+b.Davl,
+b.Mavl,
+b.Qavl,
+b.Tavl,
+b.Gavl,
+b.Wavl,
+b.Ravl,
+b.Zavl,
+b.Kavl
+from dbo.RM_PFW_CMP_AllFields_ProcDt a
+join dbo.RM_PFW_CLS_AllFields_ProcDt b on (a.segmentid=b.segmentid and a.processdate=b.processdate)
+where 
+a.processdate = cast(convert(varchar(8), dateadd(dd,-1,getdate()),112) as datetime)
+and a.dptdt >= FORMAT(GetDate(), 'yyyy-MM-dd')
+and a.dptdt <= DATEADD(day, (300-DATEPART(day, DATEADD(day, 300, GETDATE()))), GETDATE())
+and a.fltnum <4000
+and a.fltnum >59
