@@ -38,8 +38,8 @@ def execute_sql_query(query_path):
     
     conn = pyodbc.connect(
     'DRIVER={SQL Server};'
-    'SERVER=FDCSQLCE04P;'
-    'DATABASE=RM_Reports;'
+    'SERVER=xxxxxxxx;'
+    'DATABASE=xxxxxxxx;'
     'Trusted_Connection=yes;'
     )
     
@@ -49,9 +49,9 @@ def execute_sql_query(query_path):
     return pd.read_sql(sql,con=conn)
 
 # Generate dataframe
-Current = execute_sql_query('\\\\goaspen\\Department_Shares\\PricingRevMan\\Analytics\\09 - Team\\2-Interns\\Hongyang\\Closure Report\\SQL\\Current.txt')
-Current_LY = execute_sql_query('\\\\goaspen\\Department_Shares\\PricingRevMan\\Analytics\\09 - Team\\2-Interns\\Hongyang\\Closure Report\\SQL\\CurrentLY.txt')
-Current_1 = execute_sql_query('\\\\goaspen\\Department_Shares\\PricingRevMan\\Analytics\\09 - Team\\2-Interns\\Hongyang\\Closure Report\\SQL\\Current_1.txt')
+Current = execute_sql_query('\\\\xxxx\\SQL\\Current.txt')
+Current_LY = execute_sql_query('\\\\xxxx\\SQL\\CurrentLY.txt')
+Current_1 = execute_sql_query('\\\\xxxx\\SQL\\Current_1.txt')
 
 
 # Function to create N-cls based on the condition of N-avl
@@ -138,7 +138,7 @@ final_df=final_df[final_df["RPMS"]>1]
 
 # Write output to csv
 date=str(datetime.datetime.today().strftime("%Y%m%d"))[2:]
-path = '\\\\goaspen\\Department_Shares\\PricingRevMan\\Analytics\\09 - Team\\2-Interns\\Hongyang\\Closure Report\\Output\\' + date + '_Closure_Report.csv'
+path = '\\\\xxxx\\Output\\' + date + '_Closure_Report.csv'
 final_df.to_csv(path, index=False)
     
     
