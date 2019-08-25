@@ -6,8 +6,8 @@ import pandas as pd
 LOC_QUERY = r'\\goaspen\Department_Shares\PricingRevMan\Analytics\02 - Infrastructure\Bookings Tracker\SQL\Bookings_Tracker.txt'
 LOC_OUTPUT = r'\\goaspen\Department_Shares\PricingRevMan\Analytics\02 - Infrastructure\Bookings Tracker\Data\Bookings_Tracker_Data.csv'
 LOC_HISTORICAL = r'\\goaspen\Department_Shares\PricingRevMan\Analytics\02 - Infrastructure\Bookings Tracker\Data\Historical\Bookings_Tracker_Data_'+datetime.datetime.now().strftime('%Y%m%d%H%M')+'.csv'
-SERVER_NAME = '149.122.13.215,52900'
-DATABASE_NAME = 'REZF9OD01'
+SERVER_NAME = 'xxx.xxx.xx.xxx,xxxxx'
+DATABASE_NAME = 'xxxxxxxxx'
 
 def execute_sql_query(server_name, database_name,query_path):
     print('Executing query to '+database_name+'...')
@@ -15,8 +15,8 @@ def execute_sql_query(server_name, database_name,query_path):
     conn = pyodbc.connect(
     r'DRIVER={SQL Server Native Client 11.0};'
     r'SERVER='+server_name+';'
-    r'UID=F9ODSUSER;'
-    r'PWD=kUhuhAK3th;'
+    r'UID=xxxxxxxxx;'
+    r'PWD=xxxxxxxxxx;'
     r'DATABASE='+database_name+';'
     )
     with open(query_path,'r') as myfile:
