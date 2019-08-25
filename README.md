@@ -1,2 +1,2 @@
-# SAS--Python
-Work Sample: convert SAS code to Python script and use SQL pipline
+# SAS--Python+SQL
+Work Sample: convert SAS code to Python script with built-in SQL pipline
